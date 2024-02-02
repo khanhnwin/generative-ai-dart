@@ -68,6 +68,7 @@ class ChatWidget extends StatefulWidget {
 }
 
 class _ChatWidgetState extends State<ChatWidget> {
+  ScrollController _controller = ScrollController();
   late final GenerativeModel _model;
   late final ChatSession _chat;
   late final _textController = TextEditingController();
@@ -83,6 +84,18 @@ class _ChatWidgetState extends State<ChatWidget> {
       ),
     );
     _chat = _model.startChat();
+  }
+
+  void _scrollDown() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _controller.animateTo(
+        _controller.position.maxScrollExtent,
+        duration: const Duration(
+          milliseconds: 750,
+        ),
+        curve: Curves.easeOutCirc,
+      ),
+    );
   }
 
   @override
@@ -116,6 +129,7 @@ class _ChatWidgetState extends State<ChatWidget> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _controller,
               itemBuilder: (context, idx) {
                 var content = _chat.history.toList()[idx];
                 var text = content.parts
@@ -187,6 +201,7 @@ class _ChatWidgetState extends State<ChatWidget> {
       } else {
         setState(() {
           _loading = false;
+          _scrollDown();
         });
       }
     } catch (e) {
