@@ -30,7 +30,7 @@ class GenerativeAISample extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           brightness: Brightness.dark,
-          seedColor: const Color.fromARGB(255, 171, 222, 244),
+          seedColor: Color.fromRGBO(171, 222, 244, 1),
         ),
         useMaterial3: true,
       ),
@@ -74,6 +74,8 @@ class _ChatWidgetState extends State<ChatWidget> {
   final TextEditingController _textController = TextEditingController();
   final FocusNode _textFieldFocus = FocusNode();
   bool _loading = false;
+  final String prompt =
+      'You are a magic 8 ball. Give a cryptic yes, no, or maybe answer as a pun to the question below. However, if the question below is open-ended, give a vague non-committal pun as an answer.';
 
   @override
   void initState() {
@@ -135,6 +137,11 @@ class _ChatWidgetState extends State<ChatWidget> {
                     .whereType<TextPart>()
                     .map<String>((e) => e.text)
                     .join('');
+
+                if (content.role == 'user') {
+                  text = text.substring(prompt.length);
+                }
+
                 return MessageWidget(
                   text: text,
                   isFromUser: content.role == 'user',
@@ -191,7 +198,7 @@ class _ChatWidgetState extends State<ChatWidget> {
 
     try {
       var response = await _chat.sendMessage(
-        Content.text(message),
+        Content.text(prompt + message),
       );
       var text = response.text;
 
